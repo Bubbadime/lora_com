@@ -166,6 +166,7 @@ uint32_t LoRa_translate_frf_bits(uint32_t frfBits) {
 	reEndian[0] = bytePtr[2];
 	reEndian[1] = bytePtr[1];
 	reEndian[2] = bytePtr[0];
+    frfBits = *((uint32_t*)reEndian);
 	uint32_t mhzFrequency = frfBits / 16 / 1024;
 	result = *(uint32_t*)reEndian; 
 	return result;
