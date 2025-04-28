@@ -193,3 +193,36 @@ int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *msg) {
 	return result;
 }
 
+// Waits for any one interrupt from irqBits to be set
+uint8_t LoRa_wait_irq_any(int fd, uint8_t irqBits) {
+    uint8_t result = 0;
+    uint8_t irqMask;
+    LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags_Mask);
+    LoRa_xfr_single(fd, &msg);
+    if ((msg.dst_data & irqBits) == irqBits) {
+        return result;
+    }
+    do {
+        LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags);
+        LoRa_xfr_single(fd, &msg);
+        result = msg.dst_data & irqBits;
+    } while(result  == 0);
+    return result;
+}
+
+// Waits for all interrupts from irqBits to be set
+uint8_t LoRa_wait_irq_all(int fd, uint8_t irqBits) {
+    uint8_t result = 0;
+    uint8_t irqMask;
+    LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags_Mask);
+    LoRa_xfr_single(fd, &msg);
+    if ((msg.dst_data & irqBits) == irqBits) {
+        return result;
+    }
+    do {
+        LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags);
+        LoRa_xfr_single(fd, &msg);
+        result = msg.dst_data & irqBits;
+    } while(result  != irqBits);
+    return result;
+}

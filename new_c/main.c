@@ -57,14 +57,9 @@ rtrn = LoRa_xfr_single(fd, &msg);
 
 LoRa_print_all_reg(fd);
 
-uint8_t ldat[256];
-for (uint32_t i = 0; i < 256; i++) {
-    ldat[i] = 'L';
-}
-LoRaXfr bigmsg = LoRa_wr_fifo_full(ldat);;
-LoRa_xfr_fifo_full(fd, &bigmsg);
+LoRa_wait_irq_all(fd, LORA_IRQ_RX_DONE_BIT);
 
-bigmsg = LoRa_rd_fifo_full();;
+LoRaXfr bigmsg = LoRa_rd_fifo_full();;
 LoRa_xfr_fifo_full(fd, &bigmsg);
 for (uint32_t i = 0; i < 256; i++) {
     printf("%c", bigmsg.dst_data[i]);
