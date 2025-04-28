@@ -123,18 +123,16 @@ int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg) {
 	return result;
 }
 
-int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *dst) {
+int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *msg) {
 	int32_t result = 0;
 	// Set fifo ptr to 0x00
-	LoRaSingleXfr msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
-	LoRa_xfr_single(fd, &msg);
-	// Transfer full fifo
-    dst->addr = Fifo;
-	result = spi_xfr(fd, 257, dst->src_base, dst->dst_base);
+	LoRaSingleXfr ptrResetMsg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
+	LoRa_xfr_single(fd, &ptrResetMsg);
+	result = spi_xfr(fd, 257, msg->src_base, msg->dst_base);
 	return result;
 }
 
-LoRaXfr LoRa_wr_fifo_full(int fd, uint8_t *src) {
+LoRaXfr LoRa_wr_fifo_full(uint8_t *src) {
     LoRaXfr result = {0};
     result.addr = 0x80 | Fifo;
     for (uint32_t i = 0; i < 256; i++) {
@@ -144,9 +142,8 @@ LoRaXfr LoRa_wr_fifo_full(int fd, uint8_t *src) {
 
 }
 
-LoRaXfr LoRa_rd_fifo_full(int fd) {
+LoRaXfr LoRa_rd_fifo_full() {
     LoRaXfr result = {0};
     result.addr = Fifo;
     return result;
-
 }
