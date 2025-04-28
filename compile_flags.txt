@@ -1,0 +1,3 @@
+-I%include%
+-I/Users/greg/Documents/Britton/code/wiringPi/wiringPi
+
