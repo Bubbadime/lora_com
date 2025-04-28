@@ -1,4 +1,5 @@
 *.jpeg
 *.ssdv
+.vim/*
 compile_flags.txt
 
