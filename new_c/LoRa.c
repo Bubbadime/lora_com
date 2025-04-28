@@ -199,14 +199,17 @@ uint8_t LoRa_wait_irq_any(int fd, uint8_t irqBits) {
     uint8_t irqMask;
     LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags_Mask);
     LoRa_xfr_single(fd, &msg);
-    if ((msg.dst_data & irqBits) == irqBits) {
+    irqMask = (msg.dst_data & irqBits);
+    if (irqMask == irqBits) {
         return result;
     }
     do {
-        LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags);
+        msg = LoRa_rd_reg(Irq_Flags);
         LoRa_xfr_single(fd, &msg);
         result = msg.dst_data & irqBits;
     } while(result  == 0);
+    msg = LoRa_wr_reg(Irq_Flags, result);
+    LoRa_xfr_single(fd, &msg);
     return result;
 }
 
@@ -216,13 +219,16 @@ uint8_t LoRa_wait_irq_all(int fd, uint8_t irqBits) {
     uint8_t irqMask;
     LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags_Mask);
     LoRa_xfr_single(fd, &msg);
-    if ((msg.dst_data & irqBits) == irqBits) {
+    irqMask = (msg.dst_data & irqBits);
+    if (irqMask == irqBits) {
         return result;
     }
     do {
-        LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags);
+        msg = LoRa_rd_reg(Irq_Flags);
         LoRa_xfr_single(fd, &msg);
         result = msg.dst_data & irqBits;
     } while(result  != irqBits);
+    msg = LoRa_wr_reg(Irq_Flags, result);
+    LoRa_xfr_single(fd, &msg);
     return result;
 }
