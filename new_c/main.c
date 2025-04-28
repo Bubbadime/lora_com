@@ -56,6 +56,12 @@ rtrn = LoRa_xfr_single(fd, &msg);
 
 LoRa_print_all_reg(fd);
 
+LoRaXfr bigmsg = {0};
+LoRa_xfr_fifo_full(fd, &bigmsg);
+for (uint32_t i = 0; i < 256; i++) {
+    printf("%c", bigmsg.dst_data[i]);
+}
+printf("\n");
 return 0;
 
 }
