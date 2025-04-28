@@ -103,6 +103,42 @@ LoRaSingleXfr LoRa_rd_reg(LoRaRegister reg) {
 	return result;
 }
 
+LoRaXfr LoRa_wr_burst(LoRaRegister startReg, uint8_t* data, size_t length) {
+	LoRaXfr result = {
+        .xfrSize = length,
+        .addr = 0x80 | startReg
+	};
+    for (size_t i = 0; i < length; i++) {
+        result.src_data[i] = data[i];
+    }
+	return result;
+}
+
+LoRaXfr LoRa_rd_burst(LoRaRegister startReg, size_t length) {
+	LoRaXfr result = {
+        .xfrSize = length,
+		.addr = 0x7F & startReg
+	};
+	return result;
+}
+LoRaXfr LoRa_wr_fifo_full(uint8_t *src) {
+    LoRaXfr result = {0};
+    result.addr = 0x80 | Fifo;
+    for (uint32_t i = 0; i < 256; i++) {
+        result.src_data[i] = src[i];
+    }
+    result.xfrSize = 257;
+    return result;
+
+}
+
+LoRaXfr LoRa_rd_fifo_full() {
+    LoRaXfr result = {0};
+    result.addr = Fifo;
+    result.xfrSize = 257;
+    return result;
+}
+
 uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency) {
 	uint32_t result = 0;
 	uint32_t frf = mhzFrequency * 16 * 1024;
@@ -117,6 +153,12 @@ uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency) {
 	return result;
 }
 
+int32_t LoRa_xfr_burst(int fd, LoRaXfr *msg) {
+	int32_t result = 0;
+	result = spi_xfr(fd, msg->xfrSize, msg->src_base, msg->dst_base);
+	return result;
+}
+
 int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg) {
 	int32_t result = 0;
 	result = spi_xfr(fd, 2, msg->src_base, msg->dst_base);
@@ -128,22 +170,7 @@ int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *msg) {
 	// Set fifo ptr to 0x00
 	LoRaSingleXfr ptrResetMsg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
 	LoRa_xfr_single(fd, &ptrResetMsg);
-	result = spi_xfr(fd, 257, msg->src_base, msg->dst_base);
+	result = spi_xfr(fd, msg->xfrSize, msg->src_base, msg->dst_base);
 	return result;
 }
 
-LoRaXfr LoRa_wr_fifo_full(uint8_t *src) {
-    LoRaXfr result = {0};
-    result.addr = 0x80 | Fifo;
-    for (uint32_t i = 0; i < 256; i++) {
-        result.src_data[i] = src[i];
-    }
-    return result;
-
-}
-
-LoRaXfr LoRa_rd_fifo_full() {
-    LoRaXfr result = {0};
-    result.addr = Fifo;
-    return result;
-}

@@ -26,11 +26,10 @@ rtrn = LoRa_xfr_single(fd, &msg);
 printf("0x%.4hx, rtrn: %d\n", msg.fullXfr, rtrn);
 
 // Set frequency to 915
-uint8_t burst[256];
-uint32_t* dat = (void*)(burst + 1);
-burst[0] = 0x80 | Fr_Msb;
-*dat = LoRa_make_frf_bits(915);
-wiringPiSPIDataRW(0, burst, 4);
+LoRaXfr burstMsg = {0};
+uint32_t dat = LoRa_make_frf_bits(915);
+burstMsg = LoRa_wr_burst(Fr_Msb, (void*)&dat, 3);
+LoRa_xfr_burst(fd, &burstMsg);
 
 // Reset the Fifo addr
 msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);

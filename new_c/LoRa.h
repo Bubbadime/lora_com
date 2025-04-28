@@ -122,14 +122,19 @@ struct LoRaXfr {
 void LoRa_get_reg_name(uint8_t addr, char* dst);
 void LoRa_print_reg_read(LoRaSingleXfr msg);
 void LoRa_print_all_reg(int fd);
+uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency);
 
+LoRaXfr LoRa_wr_burst(LoRaRegister startReg, uint8_t* data, size_t length);
+LoRaXfr LoRa_rd_burst(LoRaRegister startReg, size_t length);
 LoRaSingleXfr LoRa_wr_reg(LoRaRegister reg, uint8_t data);
 LoRaSingleXfr LoRa_rd_reg(LoRaRegister reg);
-uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency);
-int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg);
-int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *dst);
 LoRaXfr LoRa_wr_fifo_full(uint8_t *src);
 LoRaXfr LoRa_rd_fifo_full();
+
+int32_t LoRa_xfr_burst(int fd, LoRaXfr *msg);
+int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg);
+int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *dst);
+
 
 #endif
 
