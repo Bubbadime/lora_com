@@ -133,3 +133,20 @@ int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *dst) {
 	result = spi_xfr(fd, 257, dst->src_base, dst->dst_base);
 	return result;
 }
+
+LoRaXfr LoRa_wr_fifo_full(int fd, uint8_t *src) {
+    LoRaXfr result = {0};
+    result.addr = 0x80 | Fifo;
+    for (uint32_t i = 0; i < 256; i++) {
+        result.src_data[i] = src[i];
+    }
+    return result;
+
+}
+
+LoRaXfr LoRa_rd_fifo_full(int fd) {
+    LoRaXfr result = {0};
+    result.addr = Fifo;
+    return result;
+
+}
