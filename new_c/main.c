@@ -60,10 +60,10 @@ uint8_t ldat[256];
 for (uint32_t i = 0; i < 256; i++) {
     ldat[i] = 'L';
 }
-LoRaXfr bigmsg = LoRa_wr_fifo_full(fd, ldat);;
+LoRaXfr bigmsg = LoRa_wr_fifo_full(ldat);;
 LoRa_xfr_fifo_full(fd, &bigmsg);
 
-bigmsg = LoRa_rd_fifo_full(fd);;
+bigmsg = LoRa_rd_fifo_full();;
 LoRa_xfr_fifo_full(fd, &bigmsg);
 for (uint32_t i = 0; i < 256; i++) {
     printf("%c", bigmsg.dst_data[i]);
