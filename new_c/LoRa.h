@@ -2,6 +2,7 @@
 #define LORA_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 #define FXOSC = 32000000.0;
 #define FSTEP = (FXOSC / 524288);
@@ -10,7 +11,7 @@ typedef enum ModemConfig ModemConfig;
 typedef enum LoRaRegister LoRaRegister;
 
 typedef union LoRaSingleXfr LoRaSingleXfr;
-typedef union LoRaXfr LoRaXfr;
+typedef struct LoRaXfr LoRaXfr;
 
 enum ModemConfig {
 	Bw125Cr45Sf128 = (0x72 | 0x7400 | 0x040000),
@@ -58,27 +59,45 @@ enum LoRaRegister {
 };
 
 union LoRaSingleXfr {
-	uint16_t fullXfer;
-	uint8_t base[2];
+	uint32_t fullXfr;
 	struct {
-		uint8_t addr;
-		uint8_t data;
+		union {
+			uint8_t src_base[2];
+			struct {
+				uint8_t addr;
+				uint8_t src_data;
+			};
+		};
+		union {
+			uint8_t dst_base[2];
+			struct {
+				uint8_t dst_pad;
+				uint8_t dst_data;
+			};
+		};
 	};
-	
 };
 
-union LoRaXfr {
-	uint8_t base[257];
+struct LoRaXfr {
+	size_t xfrSize;
 	struct {
-		uint8_t addr;
-		uint8_t data[256];
+		uint8_t base[257];
+		struct {
+			uint8_t addr;
+			uint8_t data[256];
+		};
 	};
-
 };
+
+void LoRa_get_reg_name(uint8_t addr, char* dst);
+void LoRa_print_reg_read(LoRaSingleXfr msg);
+void LoRa_print_all_reg(int fd);
 
 LoRaSingleXfr LoRa_wr_reg(LoRaRegister reg, uint8_t data);
 LoRaSingleXfr LoRa_rd_reg(LoRaRegister reg);
 uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency);
+int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg);
+int32_t LoRa_xfr_fifo_full(int fd, uint8_t *dst);
 
 #endif
 

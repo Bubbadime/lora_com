@@ -1,2 +1,2 @@
-test: main.c 
-	gcc LoRa.c main.c -lwiringPi -o test
+test: main.c PlatformLoRa.c LoRa.c
+	gcc PlatformLoRa.c LoRa.c main.c -Wall -lwiringPi -o test
