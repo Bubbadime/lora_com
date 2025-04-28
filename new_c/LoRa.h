@@ -123,6 +123,7 @@ void LoRa_get_reg_name(uint8_t addr, char* dst);
 void LoRa_print_reg_read(LoRaSingleXfr msg);
 void LoRa_print_all_reg(int fd);
 uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency);
+uint32_t LoRa_translate_frf_bits(uint32_t frfBits);
 
 LoRaXfr LoRa_wr_burst(LoRaRegister startReg, uint8_t* data, size_t length);
 LoRaXfr LoRa_rd_burst(LoRaRegister startReg, size_t length);

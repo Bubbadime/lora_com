@@ -29,6 +29,8 @@ printf("0x%.4hx, rtrn: %d\n", msg.fullXfr, rtrn);
 LoRaXfr burstMsg = {0};
 uint32_t dat = LoRa_make_frf_bits(915);
 burstMsg = LoRa_wr_burst(Fr_Msb, (void*)&dat, 3);
+dat = LoRa_translate_frf_bits(dat);
+printf("Frf: %d", dat);
 LoRa_xfr_burst(fd, &burstMsg);
 
 // Reset the Fifo addr

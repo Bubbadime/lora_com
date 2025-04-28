@@ -108,8 +108,10 @@ LoRaXfr LoRa_wr_burst(LoRaRegister startReg, uint8_t* data, size_t length) {
         .xfrSize = length,
         .addr = 0x80 | startReg
 	};
-    for (size_t i = 0; i < length; i++) {
-        result.src_data[i] = data[i];
+    if (data) {
+        for (size_t i = 0; i < length; i++) {
+            result.src_data[i] = data[i];
+        }
     }
 	return result;
 }
@@ -121,11 +123,13 @@ LoRaXfr LoRa_rd_burst(LoRaRegister startReg, size_t length) {
 	};
 	return result;
 }
-LoRaXfr LoRa_wr_fifo_full(uint8_t *src) {
+LoRaXfr LoRa_wr_fifo_full(uint8_t *data) {
     LoRaXfr result = {0};
     result.addr = 0x80 | Fifo;
-    for (uint32_t i = 0; i < 256; i++) {
-        result.src_data[i] = src[i];
+    if (data) {
+        for (uint32_t i = 0; i < 256; i++) {
+            result.src_data[i] = data[i];
+        }
     }
     result.xfrSize = 257;
     return result;
@@ -151,6 +155,21 @@ uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency) {
 	reEndian[2] = bytePtr[0];
 	result = *(uint32_t*)reEndian; 
 	return result;
+}
+
+// Converts frf bits into mhz frequency
+uint32_t LoRa_translate_frf_bits(uint32_t frfBits) {
+	uint32_t result = 0;
+	uint8_t *bytePtr = (void*)&frfBits; 
+	uint8_t reEndian[4] = {0};
+
+	reEndian[0] = bytePtr[2];
+	reEndian[1] = bytePtr[1];
+	reEndian[2] = bytePtr[0];
+	uint32_t mhzFrequency = frfBits / 16 / 1024;
+	result = *(uint32_t*)reEndian; 
+	return result;
+
 }
 
 int32_t LoRa_xfr_burst(int fd, LoRaXfr *msg) {
