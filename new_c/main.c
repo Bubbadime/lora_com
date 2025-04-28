@@ -100,8 +100,7 @@ do {
 	printf("%c", fifo_buf[i]);
 	}
 printf("\n");
-} while(nbBytes < 0x0);
-
+} while(0x0);
 
 return 0;
 
