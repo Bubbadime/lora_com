@@ -56,52 +56,6 @@ rtrn = LoRa_xfr_single(fd, &msg);
 
 LoRa_print_all_reg(fd);
 
-uint8_t nbBytes = 0;
-do {
-	msg = LoRa_wr_reg(Op_Mode, 0x80);
-	rtrn = LoRa_xfr_single(fd, &msg);
-	do {
-		msg = LoRa_rd_reg(Op_Mode);
-		LoRa_xfr_single(fd, &msg);
-		LoRa_print_reg_read(msg);
-
-	} while((msg.dst_data) != 0x80);
-	msg = LoRa_wr_reg(Op_Mode, 0x85);
-	rtrn = LoRa_xfr_single(fd, &msg);
-	do {
-		msg = LoRa_rd_reg(Op_Mode);
-		LoRa_xfr_single(fd, &msg);
-		LoRa_print_reg_read(msg);
-
-	} while((msg.dst_data) != 0x85);
-
-	do {
-		msg = LoRa_rd_reg(Irq_Flags);
-		LoRa_xfr_single(fd, &msg);
-
-	} while((msg.dst_data & 0x40) == 0x00);
-	uint8_t flags = msg.dst_data;
-	LoRa_print_reg_read(msg);
-
-	msg = LoRa_wr_reg(Op_Mode, 0x81);
-	rtrn = LoRa_xfr_single(fd, &msg);
-
-	msg = LoRa_rd_reg(Rx_Nb_Bytes);
-	LoRa_xfr_single(fd, &msg);
-	LoRa_print_reg_read(msg);
-	nbBytes = msg.dst_data;
-
-	msg = LoRa_wr_reg(Irq_Flags, flags);
-	LoRa_xfr_single(fd, &msg);
-
-	uint8_t fifo_buf[256] = {0};
-	LoRa_xfr_fifo_full(fd, fifo_buf);
-	for (int i = 0; i < 256; i++) {
-	printf("%c", fifo_buf[i]);
-	}
-printf("\n");
-} while(0x0);
-
 return 0;
 
 }

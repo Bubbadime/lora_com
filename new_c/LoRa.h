@@ -4,8 +4,31 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define FXOSC = 32000000.0;
-#define FSTEP = (FXOSC / 524288);
+// Op Modes
+#define LORA_OP_MODE_SLEEP_BITS 0x00
+#define LORA_OP_MODE_STDBY_BITS 0x01
+#define LORA_OP_MODE_FSTX_BITS 0x02
+#define LORA_OP_MODE_TX_BITS 0x03
+#define LORA_OP_MODE_FSRX_BITS 0x04
+#define LORA_OP_MODE_RX_CONTINUOUS_BITS 0x05
+#define LORA_OP_MODE_RX_SINGLE_BITS 0x06
+#define LORA_OP_MODE_CAD_BITS 0x07
+
+#define LORA_OP_MODE_LONG_RANGE_BIT 0x80
+#define LORA_OP_MODE_ACCESS_SHARED_REG_BIT 0x40
+#define LORA_OP_MODE_LOW_FREQUENCY_BIT 0x08
+
+
+// IRQ flag bits
+#define LORA_IRQ_CAD_DETECTED_BIT 0x01
+#define LORA_IRQ_FHSS_CHANGE_CHANNEL_BIT 0x02
+#define LORA_IRQ_CAD_DONE_BIT 0x04
+#define LORA_IRQ_TX_DONE_BIT 0x08
+#define LORA_IRQ_VALID_HEADER_BIT 0x10
+#define LORA_IRQ_PAYLOAD_CRC_ERROR_BIT 0x20
+#define LORA_IRQ_RX_DONE_BIT 0x40
+#define LORA_IRQ_RX_TIMEOUT_BIT 0x80
+
 
 typedef enum ModemConfig ModemConfig;
 typedef enum LoRaRegister LoRaRegister;
@@ -79,14 +102,21 @@ union LoRaSingleXfr {
 };
 
 struct LoRaXfr {
-	size_t xfrSize;
-	struct {
-		uint8_t base[257];
-		struct {
-			uint8_t addr;
-			uint8_t data[256];
-		};
-	};
+    size_t xfrSize;
+    union {
+        uint8_t src_base[257];
+        struct {
+            uint8_t addr;
+            uint8_t src_data[256];
+        };
+    };
+    union {
+        uint8_t dst_base[257];
+        struct {
+            uint8_t dst_pad;
+            uint8_t dst_data[256];
+        };
+    };
 };
 
 void LoRa_get_reg_name(uint8_t addr, char* dst);
@@ -97,7 +127,7 @@ LoRaSingleXfr LoRa_wr_reg(LoRaRegister reg, uint8_t data);
 LoRaSingleXfr LoRa_rd_reg(LoRaRegister reg);
 uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency);
 int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg);
-int32_t LoRa_xfr_fifo_full(int fd, uint8_t *dst);
+int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr*dst);
 
 #endif
 
