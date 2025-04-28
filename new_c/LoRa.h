@@ -128,8 +128,8 @@ LoRaSingleXfr LoRa_rd_reg(LoRaRegister reg);
 uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency);
 int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg);
 int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *dst);
-LoRaXfr LoRa_wr_fifo_full(int fd, uint8_t *src);
-LoRaXfr LoRa_rd_fifo_full(int fd);
+LoRaXfr LoRa_wr_fifo_full(uint8_t *src);
+LoRaXfr LoRa_rd_fifo_full();
 
 #endif
 
