@@ -236,7 +236,55 @@ LoRaModemConfig1 LoRa_make_config_1(float bw, uint8_t cr, uint8_t implicitHeader
     return result;
 }
 
-LoRaModemConfig2 LoRa_make_config_2(uint32_t sf, uint8_t txContinuousModeOn, uint8_t rxPayloadCrcOn, uint8_t timeOutMsb);
+LoRaModemConfig2 LoRa_make_config_2(uint32_t sf, uint8_t txContinuousModeOn, uint8_t rxPayloadCrcOn, uint8_t timeOutMsb) {
+    LoRaModemConfig2 result = 0;
+    switch (sf) {
+        case 64:
+            {
+                result |= LoRa_Config_2_Sf_64;
+                break;
+            }
+        case 128:
+            {
+                result |= LoRa_Config_2_Sf_128;
+                break;
+            }
+        case 256:
+            {
+                result |= LoRa_Config_2_Sf_256;
+                break;
+            }
+        case 512:
+            {
+                result |= LoRa_Config_2_Sf_512;
+                break;
+            }
+        case 1024:
+            {
+                result |= LoRa_Config_2_Sf_1024;
+                break;
+            }
+        case 2048:
+            {
+                result |= LoRa_Config_2_Sf_2048;
+                break;
+            }
+        case 4096:
+            {
+                result |= LoRa_Config_2_Sf_4096;
+                break;
+            }
+    }
+    if (txContinuousModeOn) {
+        result |= LoRa_Config_2_Tx_Continuous_Mode_On;
+    }
+    if (rxPayloadCrcOn) {
+        result |= LoRa_Config_2_Rx_Payload_Crc_On;
+    }
+    timeOutMsb &= 3;
+    result |= timeOutMsb;
+    return result;
+}
 
 int32_t LoRa_xfr_burst(int fd, LoRaXfr *msg) {
 	int32_t result = 0;
