@@ -54,18 +54,18 @@ enum LoRaModemConfig2Bits {
 };
 // Op Modes
 enum LoRaOpModeBits {
-   LoRa_op_mode_sleep = 0x00,
-   LoRa_op_mode_stdby = 0x01,
-   LoRa_op_mode_fstx = 0x02,
-   LoRa_op_mode_tx = 0x03,
-   LoRa_op_mode_fsrx = 0x04,
-   LoRa_op_mode_rx_continuous = 0x05,
-   LoRa_op_mode_rx_single = 0x06,
-   LoRa_op_mode_cad = 0x07,
+   LoRa_Op_Mode_Sleep = 0x00,
+   LoRa_Op_Mode_Stdby = 0x01,
+   LoRa_Op_Mode_Fstx = 0x02,
+   LoRa_Op_Mode_Tx = 0x03,
+   LoRa_Op_Mode_Fsrx = 0x04,
+   LoRa_Op_Mode_Rx_Continuous = 0x05,
+   LoRa_Op_Mode_Rx_Single = 0x06,
+   LoRa_Op_Mode_Cad = 0x07,
 
-   LoRa_op_mode_long_range = 0x80,
-   LoRa_op_mode_access_shared_reg = 0x40,
-   LoRa_op_mode_low_frequency = 0x08,
+   LoRa_Op_Mode_Long_Range = 0x80,
+   LoRa_Op_Mode_Access_Shared_Reg = 0x40,
+   LoRa_Op_Mode_Low_Frequency = 0x08,
 };
 
 enum LoRaRegister {
