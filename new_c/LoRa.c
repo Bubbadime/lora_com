@@ -172,6 +172,72 @@ uint32_t LoRa_translate_frf_bits(uint32_t frfBits) {
 
 }
 
+LoRaModemConfig1 LoRa_make_config_1(float bw, uint8_t cr, uint8_t implicitHeaderMode) {
+    LoRaModemConfig1 result = 0;
+    if (bw < (10.4 + 7.8) / 2.0) {
+        result |= LoRa_Config_1_Bw_7_8;
+    }
+    else if (bw < (15.6 + 10.4) / 2.0) {
+        result |= LoRa_Config_1_Bw_10_4;
+    }
+    else if (bw < (20.8 + 15.6) / 2.0) {
+        result |= LoRa_Config_1_Bw_15_6;
+    }
+    else if (bw < (31.25 + 20.8) / 2.0) {
+        result |= LoRa_Config_1_Bw_20_8;
+    }
+    else if (bw < (41.7 + 31.25) / 2.0) {
+        result |= LoRa_Config_1_Bw_31_25;
+    }
+    else if (bw < (62.5 + 41.7) / 2.0) {
+        result |= LoRa_Config_1_Bw_41_7;
+    }
+    else if (bw < (125.0 + 62.5) / 2.0) {
+        result |= LoRa_Config_1_Bw_62_5;
+    }
+    else if (bw < (250.0 + 125.0) / 2.0) {
+        result |= LoRa_Config_1_Bw_125;
+    }
+    else if (bw < (500.0 + 250.0) / 2.0) {
+        result |= LoRa_Config_1_Bw_250;
+    }
+    else {
+        result |= LoRa_Config_1_Bw_500;
+    }
+    switch (cr) {
+        case 5:
+            {
+                result |= LoRa_Config_1_Cr_4_5th;
+                break;
+            } 
+        case 6:
+            {
+                result |= LoRa_Config_1_Cr_4_6th;
+                break;
+            } 
+        case 7:
+            {
+                result |= LoRa_Config_1_Cr_4_7th;
+                break;
+            } 
+        case 8:
+            {
+                result |= LoRa_Config_1_Cr_4_8th;
+                break;
+            } 
+        default: 
+            {
+                result |= LoRa_Config_1_Cr_4_5th;
+            }
+    }
+    if (implicitHeaderMode) {
+        result |= LoRa_Config_1_Implicit_Header_On;
+    }
+    return result;
+}
+
+LoRaModemConfig2 LoRa_make_config_2(uint32_t sf, uint8_t txContinuousModeOn, uint8_t rxPayloadCrcOn, uint8_t timeOutMsb);
+
 int32_t LoRa_xfr_burst(int fd, LoRaXfr *msg) {
 	int32_t result = 0;
 	result = spi_xfr(fd, msg->xfrSize, msg->src_base, msg->dst_base);
