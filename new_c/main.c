@@ -73,7 +73,9 @@ rtrn = LoRa_xfr_single(fd, &msg);
 LoRa_print_all_reg(fd);
 uint32_t irqId = 0;
 while (irqId != LoRa_Irq_Cad_Detected_Bit) {
-	irqId = LoRa_wait_irq_any(fd, Lora_Irq_Cad_Done_Bit | LoRa_Irq_Cad_Detected_Bit);
+	irqId = LoRa_wait_irq_any(fd, LoRa_Irq_Cad_Done_Bit | LoRa_Irq_Cad_Detected_Bit);
+	msg = LoRa_wr_reg(Op_Mode, 0x80 | LoRa_Op_Mode_Cad);
+	rtrn = LoRa_xfr_single(fd, &msg);
 }
 printf("Irq got: %hhu\n", irqId);
 
