@@ -104,10 +104,9 @@ LoRaSingleXfr LoRa_rd_reg(LoRaRegister reg) {
 }
 
 LoRaXfr LoRa_wr_burst(LoRaRegister startReg, uint8_t* data, size_t length) {
-	LoRaXfr result = {
-        .xfrSize = length,
-        .addr = 0x80 | startReg
-	};
+	LoRaXfr result = {0};
+        result.xfrSize = length;
+        result.addr = 0x80 | startReg;
     if (data) {
         for (size_t i = 0; i < length; i++) {
             result.src_data[i] = data[i];
@@ -117,10 +116,9 @@ LoRaXfr LoRa_wr_burst(LoRaRegister startReg, uint8_t* data, size_t length) {
 }
 
 LoRaXfr LoRa_rd_burst(LoRaRegister startReg, size_t length) {
-	LoRaXfr result = {
-        .xfrSize = length,
-		.addr = 0x7F & startReg
-	};
+	LoRaXfr result = {0};
+        result.xfrSize = length;
+	result.addr = 0x7F & startReg;
 	return result;
 }
 LoRaXfr LoRa_wr_fifo_full(uint8_t *data) {
@@ -131,7 +129,7 @@ LoRaXfr LoRa_wr_fifo_full(uint8_t *data) {
             result.src_data[i] = data[i];
         }
     }
-    result.xfrSize = 257;
+    result.xfrSize = 256;
     return result;
 
 }
@@ -139,7 +137,7 @@ LoRaXfr LoRa_wr_fifo_full(uint8_t *data) {
 LoRaXfr LoRa_rd_fifo_full() {
     LoRaXfr result = {0};
     result.addr = Fifo;
-    result.xfrSize = 257;
+    result.xfrSize = 256;
     return result;
 }
 
@@ -288,7 +286,7 @@ LoRaModemConfig2 LoRa_make_config_2(uint32_t sf, uint8_t txContinuousModeOn, uin
 
 int32_t LoRa_xfr_burst(int fd, LoRaXfr *msg) {
 	int32_t result = 0;
-	result = spi_xfr(fd, msg->xfrSize, msg->src_base, msg->dst_base);
+	result = spi_xfr(fd, msg->xfrSize + 1, msg->src_base, msg->dst_base);
 	return result;
 }
 
@@ -303,7 +301,7 @@ int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *msg) {
 	// Set fifo ptr to 0x00
 	LoRaSingleXfr ptrResetMsg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
 	LoRa_xfr_single(fd, &ptrResetMsg);
-	result = spi_xfr(fd, msg->xfrSize, msg->src_base, msg->dst_base);
+	result = spi_xfr(fd, msg->xfrSize + 1, msg->src_base, msg->dst_base);
 	return result;
 }
 
