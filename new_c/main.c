@@ -48,11 +48,15 @@ rtrn = LoRa_xfr_single(fd, &msg);
 // Set config and timeout
 LoRaXfr setConfig;
 uint8_t config[3] = {0};
-config[0] = LoRa_make_config_1(500.0, 5, 0);
-config[1] = LoRa_make_config_2(4096, 0, 0, 0);
-config[2] = 0x00;
+config[0] = LoRa_make_config_1(125.0, 5, 0);
+config[1] = LoRa_make_config_2(128, 0, 0, 3);
+config[2] = 0xFF;
 setConfig = LoRa_wr_burst(Modem_Config_1, config, 3);
-printf("sz: %u, 0: %hhu, 1: %hhu, 2: %hhu\n", setConfig.xfrSize, setConfig.src_data[0], setConfig.src_data[1], setConfig.src_data[2]);
+LoRa_xfr_burst(fd, &setConfig);
+
+config[0] = 0xFF;
+config[1] = 0xFF;
+setConfig = LoRa_wr_burst(Preamble_Msb, config, 2);
 LoRa_xfr_burst(fd, &setConfig);
 
 // Set mode
@@ -61,13 +65,17 @@ msg = LoRa_wr_reg(Op_Mode, 0x81);
 rtrn = LoRa_xfr_single(fd, &msg);
 msg = LoRa_wr_reg(Op_Mode, 0x84);
 rtrn = LoRa_xfr_single(fd, &msg);
-msg = LoRa_wr_reg(Op_Mode, 0x86);
+msg = LoRa_wr_reg(Op_Mode, 0x80 | LoRa_Op_Mode_Cad);
 rtrn = LoRa_xfr_single(fd, &msg);
 #endif
 
 
 LoRa_print_all_reg(fd);
-LoRa_wait_irq_all(fd, Lora_Irq_Rx_Timeout_Bit);
+uint32_t irqId = 0;
+while (irqId != LoRa_Irq_Cad_Detected_Bit) {
+	irqId = LoRa_wait_irq_any(fd, Lora_Irq_Cad_Done_Bit | LoRa_Irq_Cad_Detected_Bit);
+}
+printf("Irq got: %hhu\n", irqId);
 
 LoRaXfr bigmsg = LoRa_rd_fifo_full();;
 LoRa_xfr_fifo_full(fd, &bigmsg);

@@ -54,18 +54,18 @@ enum LoRaModemConfig2Bits {
 };
 // Op Modes
 enum LoRaOpModeBits {
-   Lora_op_mode_sleep = 0x00,
-   Lora_op_mode_stdby = 0x01,
-   Lora_op_mode_fstx = 0x02,
-   Lora_op_mode_tx = 0x03,
-   Lora_op_mode_fsrx = 0x04,
-   Lora_op_mode_rx_continuous = 0x05,
-   Lora_op_mode_rx_single = 0x06,
-   Lora_op_mode_cad = 0x07,
+   LoRa_op_mode_sleep = 0x00,
+   LoRa_op_mode_stdby = 0x01,
+   LoRa_op_mode_fstx = 0x02,
+   LoRa_op_mode_tx = 0x03,
+   LoRa_op_mode_fsrx = 0x04,
+   LoRa_op_mode_rx_continuous = 0x05,
+   LoRa_op_mode_rx_single = 0x06,
+   LoRa_op_mode_cad = 0x07,
 
-   Lora_op_mode_long_range = 0x80,
-   Lora_op_mode_access_shared_reg = 0x40,
-   Lora_op_mode_low_frequency = 0x08,
+   LoRa_op_mode_long_range = 0x80,
+   LoRa_op_mode_access_shared_reg = 0x40,
+   LoRa_op_mode_low_frequency = 0x08,
 };
 
 enum LoRaRegister {
@@ -108,14 +108,14 @@ enum LoRaRegister {
 
 // IRQ flag bits
 enum LoRaIrqBits {
-    Lora_Irq_Cad_Detected_Bit = 0x01,
-    Lora_Irq_Fhss_Change_Channel_Bit = 0x02,
-    Lora_Irq_Cad_Done_Bit = 0x04,
-    Lora_Irq_Tx_Done_Bit = 0x08,
-    Lora_Irq_Valid_Header_Bit = 0x10,
-    Lora_Irq_Payload_Crc_Error_Bit = 0x20,
-    Lora_Irq_Rx_Done_Bit = 0x40,
-    Lora_Irq_Rx_Timeout_Bit = 0x80,
+    LoRa_Irq_Cad_Detected_Bit = 0x01,
+    LoRa_Irq_Fhss_Change_Channel_Bit = 0x02,
+    LoRa_Irq_Cad_Done_Bit = 0x04,
+    LoRa_Irq_Tx_Done_Bit = 0x08,
+    LoRa_Irq_Valid_Header_Bit = 0x10,
+    LoRa_Irq_Payload_Crc_Error_Bit = 0x20,
+    LoRa_Irq_Rx_Done_Bit = 0x40,
+    LoRa_Irq_Rx_Timeout_Bit = 0x80,
 };
 
 union LoRaSingleXfr {
