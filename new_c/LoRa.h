@@ -186,6 +186,7 @@ LoRaSingleXfr LoRa_rd_reg(LoRaRegister reg);
 LoRaXfr LoRa_wr_fifo_full(uint8_t *src);
 LoRaXfr LoRa_rd_fifo_full();
 
+uint8_t LoRa_wait_irq(int fd, uint8_t irqBits, uint8_t waitAll);
 uint8_t LoRa_wait_irq_any(int fd, uint8_t irqBits);
 uint8_t LoRa_wait_irq_all(int fd, uint8_t irqBits);
 
