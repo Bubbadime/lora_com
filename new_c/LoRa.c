@@ -320,7 +320,7 @@ uint8_t LoRa_wait_irq(int fd, uint8_t irqBits, uint8_t waitAll) {
         msg = LoRa_rd_reg(Irq_Flags);
         LoRa_xfr_single(fd, &msg);
         result = msg.dst_data & irqBits;
-        waiting = waitAll? (result == irqBits) : !result;
+        waiting = waitAll? (result != irqBits) : !result;
 
     } while(waiting);
     msg = LoRa_wr_reg(Irq_Flags, result);
@@ -330,40 +330,12 @@ uint8_t LoRa_wait_irq(int fd, uint8_t irqBits, uint8_t waitAll) {
 
 // Waits for any one interrupt from irqBits to be set
 uint8_t LoRa_wait_irq_any(int fd, uint8_t irqBits) {
-    uint8_t result = 0;
-    uint8_t irqMask;
-    LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags_Mask);
-    LoRa_xfr_single(fd, &msg);
-    irqMask = (msg.dst_data & irqBits);
-    if (irqMask == irqBits) {
-        return result;
-    }
-    do {
-        msg = LoRa_rd_reg(Irq_Flags);
-        LoRa_xfr_single(fd, &msg);
-        result = msg.dst_data & irqBits;
-    } while(result  == 0);
-    msg = LoRa_wr_reg(Irq_Flags, result);
-    LoRa_xfr_single(fd, &msg);
-    return result;
+	uint8_t result = LoRa_wait_irq(fd, irqBits, 0);
+    	return result;
 }
 
 // Waits for all interrupts from irqBits to be set
 uint8_t LoRa_wait_irq_all(int fd, uint8_t irqBits) {
-    uint8_t result = 0;
-    uint8_t irqMask;
-    LoRaSingleXfr msg = LoRa_rd_reg(Irq_Flags_Mask);
-    LoRa_xfr_single(fd, &msg);
-    irqMask = (msg.dst_data & irqBits);
-    if (irqMask == irqBits) {
-        return result;
-    }
-    do {
-        msg = LoRa_rd_reg(Irq_Flags);
-        LoRa_xfr_single(fd, &msg);
-        result = msg.dst_data & irqBits;
-    } while(result  != irqBits);
-    msg = LoRa_wr_reg(Irq_Flags, result);
-    LoRa_xfr_single(fd, &msg);
-    return result;
+	uint8_t result = LoRa_wait_irq(fd, irqBits, 1);
+    	return result;
 }
