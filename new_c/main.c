@@ -72,19 +72,30 @@ rtrn = LoRa_xfr_single(fd, &msg);
 
 LoRa_print_all_reg(fd);
 
+// Rx a packet
 uint32_t irqId = 0;
 while (irqId == 0) {
 	irqId = LoRa_wait_irq(fd, LoRa_Irq_Rx_Done_Bit | LoRa_Irq_Valid_Header_Bit, 1);
 }
-printf("Irq got: 0x%hhx\n", irqId);
 
-LoRaXfr bigmsg = LoRa_rd_fifo_full();;
-LoRa_xfr_fifo_full(fd, &bigmsg);
-for (uint32_t i = 0; i < 256; i++) {
+msg = LoRa_rd_reg(Rx_Nb_Bytes);
+LoRa_xfr_single(fd, &msg);
+uint8_t rxNbBytes = msg.dst_data;
+printf("%hhu Bytes rx\n", rxNbBytes);
+
+msg = LoRa_rd_reg(Fifo_Rx_Current_Addr);
+LoRa_xfr_single(fd, &msg);
+uint8_t rxAddr = msg.dst_data;
+printf("%hhu rx ptr in fifo\n", rxAddr);
+
+LoRaXfr bigmsg = LoRa_rd_fifo_bytes((size_t)rxNbBytes);;
+LoRa_xfr_fifo_bytes(fd, rxAddr, &bigmsg);
+for (uint32_t i = 0; i < rxNbBytes; i++) {
     printf("%c", bigmsg.dst_data[i]);
 }
 printf("\n");
 
+// return
 return 0;
 }
 

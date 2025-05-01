@@ -121,6 +121,27 @@ LoRaXfr LoRa_rd_burst(LoRaRegister startReg, size_t length) {
 	result.addr = 0x7F & startReg;
 	return result;
 }
+
+LoRaXfr LoRa_wr_fifo_bytes(uint8_t *data, size_t length) {
+    LoRaXfr result = {0};
+    result.addr = 0x80 | Fifo;
+    if (data) {
+        for (uint32_t i = 0; i < length; i++) {
+            result.src_data[i] = data[i];
+        }
+    }
+    result.xfrSize = length;
+    return result;
+
+}
+
+LoRaXfr LoRa_rd_fifo_bytes(size_t length) {
+    LoRaXfr result = {0};
+    result.addr = Fifo;
+    result.xfrSize = length;
+    return result;
+}
+
 LoRaXfr LoRa_wr_fifo_full(uint8_t *data) {
     LoRaXfr result = {0};
     result.addr = 0x80 | Fifo;
@@ -296,12 +317,17 @@ int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg) {
 	return result;
 }
 
-int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *msg) {
+int32_t LoRa_xfr_fifo_bytes(int fd, uint8_t startAddr, LoRaXfr *msg) {
 	int32_t result = 0;
 	// Set fifo ptr to 0x00
-	LoRaSingleXfr ptrResetMsg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
+	LoRaSingleXfr ptrResetMsg = LoRa_wr_reg(Fifo_Addr_Ptr, startAddr);
 	LoRa_xfr_single(fd, &ptrResetMsg);
 	result = spi_xfr(fd, msg->xfrSize + 1, msg->src_base, msg->dst_base);
+	return result;
+}
+
+int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *msg) {
+	int32_t result = LoRa_xfr_fifo_bytes(fd, 0, msg);
 	return result;
 }
 

@@ -177,12 +177,15 @@ LoRaModemConfig2 LoRa_make_config_2(uint32_t sf, uint8_t txContinuousModeOn, uin
 
 int32_t LoRa_xfr_burst(int fd, LoRaXfr *msg);
 int32_t LoRa_xfr_single(int fd, LoRaSingleXfr *msg);
+int32_t LoRa_xfr_fifo_bytes(int fd, uint8_t startAddr, LoRaXfr *dst);
 int32_t LoRa_xfr_fifo_full(int fd, LoRaXfr *dst);
 
 LoRaXfr LoRa_wr_burst(LoRaRegister startReg, uint8_t* data, size_t length);
 LoRaXfr LoRa_rd_burst(LoRaRegister startReg, size_t length);
 LoRaSingleXfr LoRa_wr_reg(LoRaRegister reg, uint8_t data);
 LoRaSingleXfr LoRa_rd_reg(LoRaRegister reg);
+LoRaXfr LoRa_wr_fifo_bytes(uint8_t *data, size_t length);
+LoRaXfr LoRa_rd_fifo_bytes(size_t length);
 LoRaXfr LoRa_wr_fifo_full(uint8_t *src);
 LoRaXfr LoRa_rd_fifo_full();
 
