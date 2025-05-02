@@ -3,6 +3,8 @@
 #include "LoRa.h"
 #include "PlatformLoRa.h"
 
+#pragma pack(push)
+#pragma pack(1)
 typedef struct PayloadHeader PayloadHeader;
 struct PayloadHeader {
     union {
@@ -15,6 +17,7 @@ struct PayloadHeader {
     uint16_t packetId;
 };
 
+#pragma pack(pop)
 PayloadHeader dec_header(uint8_t* packet) {
     PayloadHeader result = *((PayloadHeader*)packet);
     uint8_t *id = (void*)&(result.packetId);
@@ -28,12 +31,14 @@ void print_header(PayloadHeader header) {
     printf("Magic: 0x%hx, sign: 0x%x, image: %hhu, packet: %hu\n", header.magic16, header.callsign, header.imageId, header.packetId);
 }
 uint32_t main() {
-    FILE* fd = fopen("out.ssdv", "rb");
-    uint8_t buf[16];
-    fread(buf, 1, 16, fd);
-    PayloadHeader h = *((PayloadHeader*)buf);
+    FILE* fd = fopen("out2.ssdv", "rb");
+    uint8_t buf[2048];
+	printf("Size of header: %p\n", sizeof(PayloadHeader));
+for (uint32_t i = 0; i< 8; i++) {
+
+    fread(buf, 1, 256, fd);
+    PayloadHeader h = dec_header(buf);
     print_header(h);
-    h = dec_header(buf);
-    print_header(h);
+}
     return 0;
 }
