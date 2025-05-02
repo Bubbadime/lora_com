@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <unistd.h>;
+#include <unistd.h>
 #include <linux/spi/spidev.h>
 #include <sys/ioctl.h>
 #include <asm/ioctl.h>
@@ -174,7 +174,8 @@ int main(int argc, char** argv) {
             // Extract the header info and print
             PayloadHeader h = dec_header(pack.dst_data);
             print_header(h);
-
         }
+
+    }
     return 0;
 }
