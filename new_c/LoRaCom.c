@@ -79,15 +79,17 @@ int main(int argc, char** argv) {
     // Parse opts
     int sender = 0;
     char c = 0;
-    while ((c = getopt(argc, argv, "sr") != (char)-1)) {
+    while ((c = getopt(argc, argv, "sr")) != (char)-1) {
         switch (c) {
             case 's':
                 {
+                    printf("Set to sender\n");
                     sender = 1;
                 break;
                 }
             case 'r':
                 {
+                    printf("Set to receiver\n");
                     sender = 0;
                 break;
                 }
