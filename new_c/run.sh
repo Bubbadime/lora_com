@@ -1,3 +1,4 @@
-!/bin/bash
-bin/test
+#!/bin/bash
+cd bin
+./LoRaCom -r
 

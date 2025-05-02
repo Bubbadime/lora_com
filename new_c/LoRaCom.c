@@ -1,6 +1,14 @@
 #include <stdint.h>
-#include <unistd.h>;
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <unistd.h>;
+#include <linux/spi/spidev.h>
+#include <sys/ioctl.h>
+#include <asm/ioctl.h>
+
+#include <wiringPiSPI.h>
+
 #include "LoRa.h"
 #include "PlatformLoRa.h"
 
@@ -57,22 +65,116 @@ void print_header(PayloadHeader h) {
     printf("Magic: 0x%hx, sign: 0x%x, image: %hhu, packet: %hu\n", h.magic16, h.callsign, h.imageId, h.packetId);
 }
 
+size_t get_file_size(FILE* fd) {
+    size_t cur = 0;
+    size_t result = 0;
+    cur = ftell(fd);
+    fseek(fd, 0, SEEK_END);
+    result = ftell(fd);
+    fseek(fd, cur, SEEK_SET);
+    return result;
+}
+
 int main(int argc, char** argv) {
     // Parse opts
+    int sender = 0;
     char c = 0;
-    while ((c = getopt(argc, argv, "sr") != -1)) {
-        printf("opt %c", c);
+    while ((c = getopt(argc, argv, "sr") != (char)-1)) {
+        switch (c) {
+            case 's':
+                {
+                    sender = 1;
+                break;
+                }
+            case 'r':
+                {
+                    sender = 0;
+                break;
+                }
+            default:
+        }
 
     }
-    printf("c\n");
-    FILE* fd = fopen("out2.ssdv", "rb");
-    uint8_t buf[2048];
-	printf("Size of header: %u\n", sizeof(PayloadHeader));
-    for (uint32_t i = 0; i< 8; i++) {
+    int fd = wiringPiSPISetupMode(0, 500000, SPI_MODE_0);
+    // Put the device in Sleep/LoRa mode
+    LoRaSingleXfr msg;
+    int rtrn;
+    msg = LoRa_wr_reg(Op_Mode, 0x00);
+    rtrn = LoRa_xfr_single(fd, &msg);
+    msg = LoRa_wr_reg(Op_Mode, 0x80);
+    rtrn = LoRa_xfr_single(fd, &msg);
 
-    fread(buf, 1, 256, fd);
-    PayloadHeader h = dec_header(buf);
-    print_header(h);
+    // Set frequency to 915
+    LoRaXfr burstMsg = {0};
+    uint32_t dat = LoRa_make_frf_bits(915);
+    burstMsg = LoRa_wr_burst(Fr_Msb, (void*)&dat, 3);
+    dat = LoRa_translate_frf_bits(dat);
+    printf("Frf: %d\n", dat);
+    LoRa_xfr_burst(fd, &burstMsg);
+
+    // Set rx and tx base to 0
+    msg = LoRa_wr_reg(Fifo_Rx_Base_Addr, 0x00);
+    rtrn = LoRa_xfr_single(fd, &msg);
+    msg = LoRa_wr_reg(Fifo_Tx_Base_Addr, 0x00);
+    rtrn = LoRa_xfr_single(fd, &msg);
+
+    LoRaXfr pack;
+    if (sender) {
+        uint8_t* buf;
+        size_t size;
+        FILE* ssdvFd = fopen("out.ssdv", "rb");
+        size = get_file_size(ssdvFd);
+        buf = malloc(size);
+        fread(buf, 1, size, ssdvFd);
+        for (size_t i = 0; i < size; i += 256) {
+            // Reset Fifo addr ptr
+            msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
+            rtrn = LoRa_xfr_single(fd, &msg);
+
+            // Write the packet into the Fifo
+            pack = LoRa_wr_fifo_full(buf + i);
+            LoRa_xfr_fifo_full(fd, &pack);
+
+            msg = LoRa_wr_reg(Op_Mode, 0x83);
+            rtrn = LoRa_xfr_single(fd, &msg);
+            LoRa_wait_irq_all(fd, LoRa_Irq_Tx_Done_Bit);
+        }
+        fclose(ssdvFd);
     }
+
+    else {
+        //FILE* ssdvFd = fopen("out.ssdv", "wb");
+        msg = LoRa_wr_reg(Op_Mode, 0x80 | LoRa_Op_Mode_Rx_Continuous);
+        rtrn = LoRa_xfr_single(fd, &msg);
+        while (1) {
+            // Reset Fifo addr ptr
+            msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
+            rtrn = LoRa_xfr_single(fd, &msg);
+
+            // Keep trying to rx until success
+            uint32_t irqId = 0;
+            while (irqId == 0) {
+                irqId = LoRa_wait_irq(fd, LoRa_Irq_Rx_Done_Bit | LoRa_Irq_Valid_Header_Bit, 1);
+            }
+
+            // Read the number of bytes received
+            msg = LoRa_rd_reg(Rx_Nb_Bytes);
+            LoRa_xfr_single(fd, &msg);
+            uint8_t rxNbBytes = msg.dst_data;
+
+            // Set fifo addr ptr to pick up the packet
+            msg = LoRa_rd_reg(Fifo_Rx_Current_Addr);
+            LoRa_xfr_single(fd, &msg);
+            uint8_t rxAddr = msg.dst_data;
+
+            // Read packet from fifo
+            pack = LoRa_rd_fifo_bytes((size_t)rxNbBytes);;
+            LoRa_xfr_fifo_bytes(fd, rxAddr, &pack);
+
+            // Extract the header info and print
+            PayloadHeader h = dec_header(pack.dst_data);
+            print_header(h);
+
+        }
     return 0;
 }
