@@ -73,7 +73,7 @@ rtrn = LoRa_xfr_single(fd, &msg);
 LoRa_print_all_reg(fd);
 
 uint8_t last = -1;
-for (uint32_t i = 0; i < 64; i++) {
+while (1) {
     // Rx a packet
     uint32_t irqId = 0;
     while (irqId == 0) {
@@ -83,16 +83,16 @@ for (uint32_t i = 0; i < 64; i++) {
     msg = LoRa_rd_reg(Rx_Nb_Bytes);
     LoRa_xfr_single(fd, &msg);
     uint8_t rxNbBytes = msg.dst_data;
-    printf("%hhu Bytes rx\n", rxNbBytes);
 
     msg = LoRa_rd_reg(Fifo_Rx_Current_Addr);
     LoRa_xfr_single(fd, &msg);
     uint8_t rxAddr = msg.dst_data;
-    printf("%hhu rx ptr in fifo\n", rxAddr);
 
     LoRaXfr bigmsg = LoRa_rd_fifo_bytes((size_t)rxNbBytes);;
     LoRa_xfr_fifo_bytes(fd, rxAddr, &bigmsg);
     if (last != bigmsg.dst_data[2]) {
+    	printf("%hhu Bytes rx\n", rxNbBytes);
+    	printf("%hhu rx ptr in fifo\n", rxAddr);
         for (uint32_t i = 0; i < rxNbBytes; i++) {
             if ( i < 4) {
                 printf("%hhu ", bigmsg.dst_data[i]);
@@ -101,9 +101,9 @@ for (uint32_t i = 0; i < 64; i++) {
                 printf("%c", bigmsg.dst_data[i]);
             }
         }
-        last != bigmsg.dst_data[2]; 
+    	printf("\n");
+        last = bigmsg.dst_data[2]; 
     }
-    printf("\n");
 
 }
 // return
