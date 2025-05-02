@@ -120,6 +120,10 @@ int main(int argc, char** argv) {
     msg = LoRa_wr_reg(Fifo_Tx_Base_Addr, 0x00);
     rtrn = LoRa_xfr_single(fd, &msg);
 
+    // Set payload length
+    msg = LoRa_wr_reg(Payload_Length, 0xFF);
+    rtrn = LoRa_xfr_single(fd, &msg);
+
     LoRaXfr pack;
     if (sender) {
         uint8_t* buf;
