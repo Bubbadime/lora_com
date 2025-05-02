@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
 
             // Write the packet into the Fifo
             pack = LoRa_wr_fifo_full(buf + i);
-            PayloadHeader h = dec_header(pack.dst_data);
+            PayloadHeader h = dec_header(pack.src_data);
             print_header(h);
             LoRa_xfr_fifo_full(fd, &pack);
 
@@ -173,6 +173,8 @@ int main(int argc, char** argv) {
             LoRa_xfr_single(fd, &msg);
             uint8_t rxAddr = msg.dst_data;
 
+            printf("%hhu Bytes rx\n", rxNbBytes);
+            printf("%hhu rx ptr in fifo\n", rxAddr);
             // Read packet from fifo
             pack = LoRa_rd_fifo_bytes((size_t)rxNbBytes);;
             LoRa_xfr_fifo_bytes(fd, rxAddr, &pack);
