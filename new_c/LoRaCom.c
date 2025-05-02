@@ -129,12 +129,16 @@ int main(int argc, char** argv) {
         buf = malloc(size);
         fread(buf, 1, size, ssdvFd);
         for (size_t i = 0; i < size; i += 256) {
+
+
             // Reset Fifo addr ptr
             msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
             rtrn = LoRa_xfr_single(fd, &msg);
 
             // Write the packet into the Fifo
             pack = LoRa_wr_fifo_full(buf + i);
+            PayloadHeader h = dec_header(pack.dst_data);
+            print_header(h);
             LoRa_xfr_fifo_full(fd, &pack);
 
             msg = LoRa_wr_reg(Op_Mode, 0x83);
