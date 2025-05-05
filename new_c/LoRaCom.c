@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
 #include <linux/spi/spidev.h>
@@ -158,7 +159,7 @@ int main(int argc, char** argv) {
         rtrn = LoRa_xfr_single(fd, &msg);
 
         // Write the packet into the Fifo
-        pack = LoRa_wr_fifo_bytes(eomBuf, 4);
+        pack = LoRa_wr_fifo_bytes((void*)eomBuf, 4);
         LoRa_xfr_fifo_bytes(fd, 0x00, &pack);
 
         // Set mode to tx and wait for 'done' irq
@@ -199,7 +200,7 @@ int main(int argc, char** argv) {
             // Read packet from fifo
             pack = LoRa_rd_fifo_bytes((size_t)rxNbBytes);;
             LoRa_xfr_fifo_bytes(fd, rxAddr, &pack);
-            eom = !strncmp(pack.dst_data, "EOM", 4);
+            eom = !strncmp((void*)pack.dst_data, "EOM", 4);
             if (!eom) {
                 // Extract the header info and print
                 PayloadHeader h = dec_header(pack.dst_data);
