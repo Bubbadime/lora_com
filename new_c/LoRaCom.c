@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
     }
 
     else {
-        //FILE* ssdvFd = fopen("out.ssdv", "wb");
+        FILE* ssdvFd = fopen("out.ssdv", "wb");
         msg = LoRa_wr_reg(Op_Mode, 0x80 | LoRa_Op_Mode_Rx_Continuous);
         rtrn = LoRa_xfr_single(fd, &msg);
         while (1) {
@@ -186,6 +186,7 @@ int main(int argc, char** argv) {
             // Extract the header info and print
             PayloadHeader h = dec_header(pack.dst_data);
             print_header(h);
+            fwrite(pack.dst_data, 1, rxNbBytes, ssdvFd);
         }
 
     }
