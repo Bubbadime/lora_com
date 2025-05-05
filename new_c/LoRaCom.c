@@ -175,9 +175,6 @@ int main(int argc, char** argv) {
         rtrn = LoRa_xfr_single(fd, &msg);
         uint8_t eom = 0;
         while (!eom) {
-            // Reset Fifo addr ptr
-            msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
-            rtrn = LoRa_xfr_single(fd, &msg);
 
             // Keep trying to rx until success
             uint32_t irqId = 0;
@@ -195,8 +192,11 @@ int main(int argc, char** argv) {
             LoRa_xfr_single(fd, &msg);
             uint8_t rxAddr = msg.dst_data;
 
-            printf("%hhu Bytes rx\n", rxNbBytes);
-            printf("%hhu rx ptr in fifo\n", rxAddr);
+            // Reset Fifo addr ptr
+            msg = LoRa_wr_reg(Fifo_Addr_Ptr, rxAddr);
+            rtrn = LoRa_xfr_single(fd, &msg);
+
+            printf("%hhu Bytes rx, ", rxNbBytes);
             // Read packet from fifo
             pack = LoRa_rd_fifo_bytes((size_t)rxNbBytes);;
             LoRa_xfr_fifo_bytes(fd, rxAddr, &pack);
@@ -209,7 +209,21 @@ int main(int argc, char** argv) {
             }
         }
         fclose(ssdvFd);
-
     }
+    // Clean up the chip on exit 
+
+    // Reset Fifo addr ptr
+    msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
+    rtrn = LoRa_xfr_single(fd, &msg);
+
+    // Put in sleep mode
+    msg = LoRa_wr_reg(Op_Mode, 0x80);
+    rtrn = LoRa_xfr_single(fd, &msg);
+
+    // Clear Irq
+    msg = LoRa_rd_reg(Irq_Flags);
+    rtrn = LoRa_xfr_single(fd, &msg);
+    msg = LoRa_wr_reg(Irq_Flags, msg.dst_data);
+    rtrn = LoRa_xfr_single(fd, &msg);
     return 0;
 }
