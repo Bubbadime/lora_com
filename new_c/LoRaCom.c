@@ -125,6 +125,10 @@ int main(int argc, char** argv) {
     msg = LoRa_wr_reg(Payload_Length, 0xFF);
     rtrn = LoRa_xfr_single(fd, &msg);
 
+    // Set chip to stand by 
+    msg = LoRa_wr_reg(Op_Mode, 0x81);
+    rtrn = LoRa_xfr_single(fd, &msg);
+
     LoRaXfr pack;
     if (sender) {
         uint8_t* buf;
@@ -208,6 +212,7 @@ int main(int argc, char** argv) {
                 fwrite(pack.dst_data, 1, rxNbBytes, ssdvFd);
             }
         }
+        printf("EOM\n");
         fclose(ssdvFd);
     }
     // Clean up the chip on exit 
