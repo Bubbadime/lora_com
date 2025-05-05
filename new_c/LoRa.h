@@ -160,8 +160,8 @@ void LoRa_get_reg_name(uint8_t addr, char* dst);
 void LoRa_print_reg_read(LoRaSingleXfr msg);
 void LoRa_print_all_reg(int fd);
 
-uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency);
-uint32_t LoRa_translate_frf_bits(uint32_t frfBits);
+uint32_t LoRa_encode_frf_bits(uint32_t megaHzFrequency);
+uint32_t LoRa_decode_frf_bits(uint32_t frfBits);
 
 /* Returns config byte to write
  * bw expressed in kHz,

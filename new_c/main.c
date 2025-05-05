@@ -13,12 +13,11 @@ int fd = wiringPiSPISetupMode(0, 500000, SPI_MODE_0);
 int mode = 0;
 ioctl(fd, SPI_IOC_RD_MODE, &mode);
 printf("mode = %d\n", mode);
-LoRaSingleXfr msg;
 printf("fd: %x\n", fd);
 
-int rtrn;
-
 // Put the device in Sleep/LoRa mode
+LoRaSingleXfr msg;
+int rtrn;
 msg = LoRa_wr_reg(Op_Mode, 0x00);
 rtrn = LoRa_xfr_single(fd, &msg);
 msg = LoRa_wr_reg(Op_Mode, 0x80);
@@ -27,9 +26,9 @@ printf("0x%.4hx, rtrn: %d\n", msg.fullXfr, rtrn);
 
 // Set frequency to 915
 LoRaXfr burstMsg = {0};
-uint32_t dat = LoRa_make_frf_bits(915);
+uint32_t dat = LoRa_encode_frf_bits(915);
 burstMsg = LoRa_wr_burst(Fr_Msb, (void*)&dat, 3);
-dat = LoRa_translate_frf_bits(dat);
+dat = LoRa_decode_frf_bits(dat);
 printf("Frf: %d\n", dat);
 LoRa_xfr_burst(fd, &burstMsg);
 

@@ -162,9 +162,9 @@ LoRaXfr LoRa_rd_fifo_full() {
     return result;
 }
 
-uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency) {
+uint32_t LoRa_encode_frf_bits(uint32_t megaHzFrequency) {
 	uint32_t result = 0;
-	uint32_t frf = mhzFrequency * 16 * 1024;
+	uint32_t frf = megaHzFrequency * 16 * 1024;
 	uint8_t *bytePtr = (void*)&frf; 
 	uint8_t reEndian[4] = {0};
 
@@ -177,7 +177,7 @@ uint32_t LoRa_make_frf_bits(uint32_t mhzFrequency) {
 }
 
 // Converts frf bits into mhz frequency
-uint32_t LoRa_translate_frf_bits(uint32_t frfBits) {
+uint32_t LoRa_decode_frf_bits(uint32_t frfBits) {
 	uint32_t result = 0;
 	uint8_t *bytePtr = (void*)&frfBits; 
 	uint8_t reEndian[4] = {0};

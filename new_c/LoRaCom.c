@@ -108,9 +108,9 @@ int main(int argc, char** argv) {
 
     // Set frequency to 915
     LoRaXfr burstMsg = {0};
-    uint32_t dat = LoRa_make_frf_bits(915);
+    uint32_t dat = LoRa_encode_frf_bits(915);
     burstMsg = LoRa_wr_burst(Fr_Msb, (void*)&dat, 3);
-    dat = LoRa_translate_frf_bits(dat);
+    dat = LoRa_decode_frf_bits(dat);
     printf("Frf: %d\n", dat);
     LoRa_xfr_burst(fd, &burstMsg);
 
