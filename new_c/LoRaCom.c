@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
             pack = LoRa_wr_fifo_bytes(buf + i, 255);
             PayloadHeader h = dec_header(pack.src_data);
             print_header(h);
-            LoRa_xfr_fifo_bytes(fd, 255, &pack);
+            LoRa_xfr_fifo_bytes(fd, 0x00, &pack);
 
             // Set mode to tx and wait for 'done' irq
             msg = LoRa_wr_reg(Op_Mode, 0x83);
