@@ -133,8 +133,6 @@ int main(int argc, char** argv) {
         buf = malloc(size);
         fread(buf, 1, size, ssdvFd);
         for (size_t i = 0; i < size; i += 256) {
-
-
             // Reset Fifo addr ptr
             msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
             rtrn = LoRa_xfr_single(fd, &msg);
@@ -145,18 +143,37 @@ int main(int argc, char** argv) {
             print_header(h);
             LoRa_xfr_fifo_full(fd, &pack);
 
+            // Set mode to tx and wait for 'done' irq
             msg = LoRa_wr_reg(Op_Mode, 0x83);
             rtrn = LoRa_xfr_single(fd, &msg);
             LoRa_wait_irq_all(fd, LoRa_Irq_Tx_Done_Bit);
         }
         fclose(ssdvFd);
+
+        char *eomBuf = "EOM";
+        msg = LoRa_wr_reg(Payload_Length, 0x04);
+        rtrn = LoRa_xfr_single(fd, &msg);
+        // Reset Fifo addr ptr
+        msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
+        rtrn = LoRa_xfr_single(fd, &msg);
+
+        // Write the packet into the Fifo
+        pack = LoRa_wr_fifo_bytes(eomBuf, 4);
+        LoRa_xfr_fifo_bytes(fd, 0x00, &pack);
+
+        // Set mode to tx and wait for 'done' irq
+        msg = LoRa_wr_reg(Op_Mode, 0x83);
+        rtrn = LoRa_xfr_single(fd, &msg);
+        LoRa_wait_irq_all(fd, LoRa_Irq_Tx_Done_Bit);
+
     }
 
     else {
         FILE* ssdvFd = fopen("out.ssdv", "wb");
         msg = LoRa_wr_reg(Op_Mode, 0x80 | LoRa_Op_Mode_Rx_Continuous);
         rtrn = LoRa_xfr_single(fd, &msg);
-        while (1) {
+        uint8_t eom = 0;
+        while (!eom) {
             // Reset Fifo addr ptr
             msg = LoRa_wr_reg(Fifo_Addr_Ptr, 0x00);
             rtrn = LoRa_xfr_single(fd, &msg);
@@ -182,11 +199,14 @@ int main(int argc, char** argv) {
             // Read packet from fifo
             pack = LoRa_rd_fifo_bytes((size_t)rxNbBytes);;
             LoRa_xfr_fifo_bytes(fd, rxAddr, &pack);
-
-            // Extract the header info and print
-            PayloadHeader h = dec_header(pack.dst_data);
-            print_header(h);
-            fwrite(pack.dst_data, 1, rxNbBytes, ssdvFd);
+            eom = !strncmp(pack.dst_data, "EOM", 4);
+            if (!eom) {
+                // Extract the header info and print
+                PayloadHeader h = dec_header(pack.dst_data);
+                print_header(h);
+                fwrite(pack.dst_data, 1, rxNbBytes, ssdvFd);
+            }
+            fclose(ssdvFd);
         }
 
     }
